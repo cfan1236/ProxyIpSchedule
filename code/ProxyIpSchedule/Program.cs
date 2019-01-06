@@ -5,6 +5,7 @@ using Quartz;
 using Quartz.Impl;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ProxyIpSchedule
@@ -22,7 +23,8 @@ namespace ProxyIpSchedule
             .AddJsonFile("Configs/AppSettings.json");
             Configuration = builder.Build();
             #endregion
-
+            //注册encoding 后面请求某些服务器页面时防止编码报错
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //创建定时任务
             var cor = Configuration["ProxyJobExpression"];
             scheduler = StdSchedulerFactory.GetDefaultScheduler();

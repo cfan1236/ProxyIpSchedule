@@ -5,10 +5,7 @@ using ProxyIpSchedule.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ProxyIpSchedule.Helper
 {
@@ -20,21 +17,27 @@ namespace ProxyIpSchedule.Helper
         {
             _logger.Info("开始获取代理ip");
             //用5个线程去抓取数据  5*3=15页数据
-            Task[] tk = new Task[5];
+            //Task[] tk = new Task[5];
             int pageindex = 1;
-            for (int i = 0; i < 5; i++)
-            {
-                PageParam pp = new PageParam(pageindex, 3);
-                tk[i] = new Task(() =>
-                {
-                    GetNewIpList(pp);
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    PageParam pp = new PageParam(pageindex, 3);
+            //    tk[i] = new Task(() =>
+            //    {
+            //        GetNewIpList(pp);
 
-                });
-                tk[i].Start();
-                pageindex += 3;
-            }
+            //    });
+            //    tk[i].Start();
+            //    pageindex += 3;
+            //}
+
             //设置20分钟超时
-            Task.WaitAll(tk, (1000 * 60) * 20);
+            //Task.WaitAll(tk, (1000 * 60) * 20);
+
+            PageParam pp = new PageParam(pageindex, 3);
+            GetNewIpList(pp);
+
+
             _logger.Info($"共获取到:{_proxyList.Count}个有效ip");
             //运行目录
             var runPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
@@ -50,7 +53,7 @@ namespace ProxyIpSchedule.Helper
             for (int i = index; i < index + size; i++)
             {
                 //高匿名代理
-                var url = "http://www.xicidaili.com/nn/" + i;
+                var url = "https://www.xicidaili.com/nn/" + i;
                 try
                 {
                     var html = NetHttpHelper.HttpGetRequest(url, out int status, 5000);
@@ -75,8 +78,8 @@ namespace ProxyIpSchedule.Helper
                                 speed_text = speed_text.Replace("秒", "");
                                 int.TryParse(port_str, out int port);
                                 float.TryParse(speed_text, out float speed);
-                                //只提取速度<=1s的
-                                if (speed <= 1)
+                                //只提取速度<=2s的
+                                if (speed <= 2)
                                 {
                                     //检查ip有效性
                                     Proxy px = new Proxy(ip_str, port);
@@ -123,7 +126,7 @@ namespace ProxyIpSchedule.Helper
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception )
             {
             }
             return flag;
