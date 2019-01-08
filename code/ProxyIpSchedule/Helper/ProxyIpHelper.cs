@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ProxyIpSchedule.Helper
 {
@@ -17,27 +18,21 @@ namespace ProxyIpSchedule.Helper
         {
             _logger.Info("开始获取代理ip");
             //用5个线程去抓取数据  5*3=15页数据
-            //Task[] tk = new Task[5];
+            Task[] tk = new Task[5];
             int pageindex = 1;
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    PageParam pp = new PageParam(pageindex, 3);
-            //    tk[i] = new Task(() =>
-            //    {
-            //        GetNewIpList(pp);
+            for (int i = 0; i < 5; i++)
+            {
+                PageParam pp = new PageParam(pageindex, 3);
+                tk[i] = new Task(() =>
+                {
+                    GetNewIpList(pp);
 
-            //    });
-            //    tk[i].Start();
-            //    pageindex += 3;
-            //}
-
+                });
+                tk[i].Start();
+                pageindex += 3;
+            }
             //设置20分钟超时
-            //Task.WaitAll(tk, (1000 * 60) * 20);
-
-            PageParam pp = new PageParam(pageindex, 3);
-            GetNewIpList(pp);
-
-
+            Task.WaitAll(tk, (1000 * 60) * 20);
             _logger.Info($"共获取到:{_proxyList.Count}个有效ip");
             //运行目录
             var runPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
@@ -126,7 +121,7 @@ namespace ProxyIpSchedule.Helper
                     }
                 }
             }
-            catch (Exception )
+            catch (Exception)
             {
             }
             return flag;
